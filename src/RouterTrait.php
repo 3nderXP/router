@@ -68,7 +68,7 @@ trait RouterTrait
 
         if (in_array($this->httpMethod, $methods)) {
             
-            $this->data = filter_var_array(json_decode(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), true), FILTER_DEFAULT) ?? [];
+            $this->data = filter_var_array(json_decode(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), true) ?? [], FILTER_DEFAULT) ?? [];
             
             return;
 
