@@ -62,32 +62,20 @@ trait RouterTrait
      */
     protected function formSpoofing(): void
     {
-        $post = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
-        if (!empty($post['_method']) && in_array($post['_method'], ["PUT", "PATCH", "DELETE"])) {
-            $this->httpMethod = $post['_method'];
-            $this->data = $post;
+        $methods = ["POST", "PUT", "PATCH", "DELETE"];
+        $this->httpMethod = $_SERVER["REQUEST_METHOD"];
 
-            unset($this->data["_method"]);
+        if (in_array($this->httpMethod, $methods)) {
+            
+            $this->data = filter_var_array(json_decode(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), true), FILTER_DEFAULT) ?? [];
+            
             return;
-        }
 
-        if ($this->httpMethod == "POST") {
-            $this->data = filter_input_array(INPUT_POST, FILTER_DEFAULT);
-
-            unset($this->data["_method"]);
-            return;
-        }
-
-        if (in_array($this->httpMethod, ["PUT", "PATCH", "DELETE"]) && !empty($_SERVER['CONTENT_LENGTH'])) {
-            parse_str(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), $putPatch);
-            $this->data = $putPatch;
-
-            unset($this->data["_method"]);
-            return;
         }
 
         $this->data = [];
+        
     }
 
     /**
