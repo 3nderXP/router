@@ -64,17 +64,29 @@ trait RouterTrait
     {
 
         $methods = ["POST", "PUT", "PATCH", "DELETE"];
+
+        $this->data = filter_input_array(INPUT_POST) ?? [];
         $this->httpMethod = $_SERVER["REQUEST_METHOD"];
 
-        if (in_array($this->httpMethod, $methods)) {
-            
-            $this->data = filter_var_array(json_decode(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), true) ?? [], FILTER_DEFAULT) ?? [];
-            
+        if(isset($this->data["_method"])) {
+
+            $this->httpMethod = $this->data["_method"];
+            unset($this->data["_method"]);
+
             return;
 
         }
 
-        $this->data = [];
+        if (in_array($this->httpMethod, $methods)) {
+            
+            $this->data = [
+                ...$_POST,
+                ...filter_var_array(json_decode(file_get_contents('php://input', false, null, 0, $_SERVER['CONTENT_LENGTH']), true) ?? [], FILTER_DEFAULT) ?? [],
+            ];
+            
+            return;
+
+        }
         
     }
 
